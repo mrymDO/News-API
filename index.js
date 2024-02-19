@@ -20,6 +20,8 @@ app.get('/', (req, res) => {
     res.send('Hello!');
 });
 
+app.use('/user', userRoutes);
+
 mongoose.connect(
     CONNECTION_URL,
     {
