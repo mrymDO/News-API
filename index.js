@@ -17,14 +17,11 @@ const PORT = process.env.PORT || 5000;
 
 const CONNECTION_URL = process.env.MONGODB_URI;
 
-app.get('/', async (req, res) => {
-    await User.create({
-        username: "test",
-        email: "hello",
-        password: "test"
-    })
+app.get('/', (req, res) => {
     res.send('Hello!');
 });
+
+//app.use('/user', userRoutes);
 
 mongoose.connect(
     CONNECTION_URL
