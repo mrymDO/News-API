@@ -5,6 +5,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 
 import authRoutes from './routes/authRoutes.js';
+import userRoutes from './routes/userRoutes.js';
 import { authenticateToken } from "./middleware/authMiddleware.js";
 
 dotenv.config();
@@ -25,6 +26,7 @@ app.get('/', authenticateToken, (req, res) => {
 });
 
 app.use('/', authRoutes);
+app.use('/user', userRoutes);
 
 app.use((err, req, res, next) => {
     console.error(err.message);
