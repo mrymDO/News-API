@@ -2,7 +2,8 @@ import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import User from './models/user.js';
+
+import userRoutes from './routes/userRoutes.js';
 
 dotenv.config();
 
@@ -21,7 +22,7 @@ app.get('/', (req, res) => {
     res.send('Hello!');
 });
 
-//app.use('/user', userRoutes);
+app.use('/user', userRoutes);
 
 mongoose.connect(
     CONNECTION_URL
