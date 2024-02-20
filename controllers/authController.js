@@ -24,10 +24,9 @@ class UserController {
       return res.status(500).json({ message: 'Failed to create user' });
     }
 
-    const { password: userPassword, ...userWithoutPassword } = newUser.toObject();
 
     const token = generateAccessToken(newUser._id)
-    res.status(201).json({ message: 'User registered successfully', user: userWithoutPassword, token });
+    res.status(201).json({ message: 'User registered successfully', username: newUser.username, token });
 
   }
 
@@ -46,7 +45,7 @@ class UserController {
     }
 
     const token = generateAccessToken(user._id)
-    res.status(200).json({ message: 'Login successful', user, token });
+    res.status(200).json({ message: 'Login successful', token, username: user.username });
 
   }
 }
