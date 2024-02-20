@@ -3,6 +3,8 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
 
+import userRoutes from './routes/authRoutes.js';
+
 dotenv.config();
 
 const app = express();
@@ -23,14 +25,10 @@ app.get('/', (req, res) => {
 app.use('/user', userRoutes);
 
 mongoose.connect(
-    CONNECTION_URL,
-    {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-    }
+    CONNECTION_URL
 )
-    .then (() => app.listen(PORT, () => {
+    .then(() => app.listen(PORT, () => {
         console.log(`Server running on port: ${PORT}`)
     }))
-    .catch ((error) => console.log(error.message));
+    .catch((error) => console.log(error.message));
 
