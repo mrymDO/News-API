@@ -4,7 +4,7 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
 
-import userRoutes from './routes/authRoutes.js';
+import authRoutes from './routes/authRoutes.js';
 import { authenticateToken } from "./middleware/authMiddleware.js";
 
 dotenv.config();
@@ -24,7 +24,7 @@ app.get('/', authenticateToken, (req, res) => {
     res.send('Hello!');
 });
 
-app.use('/user', userRoutes);
+app.use('/', authRoutes);
 
 app.use((err, req, res, next) => {
     console.error(err.message);
