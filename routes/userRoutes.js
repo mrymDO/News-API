@@ -24,4 +24,6 @@ router.get('/:userId', (req, res) => {
     UserController.getUserById(req, res);
 });
 
+router.delete('/:userId', UserController.deleteUser);
+
 export default router;

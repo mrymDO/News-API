@@ -52,6 +52,22 @@ class UserController {
         }
         res.status(200).json(userById);
     }
+
+    async deleteUser(req, res) {
+        const { userId } = req;
+        const targetUserId = req.params.userId;
+
+        if (req.userRole === 'admin' || userId === targetUserId) {
+            const deletedUser = await User.findByIdAndDelete(targetUserId);
+            
+            if (!deletedUser) {
+                return res.status(404).json({ message: 'User not found' });
+            }
+            res.status(200).json({ message: 'User deleted successfully' });
+        } else {
+            res.status(403).json({ message: 'Forbidden - Insufficient permissions' });
+        }
+    }
 }
 
 export default new UserController();
