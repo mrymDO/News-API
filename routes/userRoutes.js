@@ -8,7 +8,7 @@ const router = express.Router();
 router.use(authenticateToken);
 
 router.put('/update', upload.single('profilePicture'), UserController.updateUser);
-router.delete(':id', UserController.deleteUser)
+router.delete('/delete/:id', UserController.deleteUser)
 
 router.get('/all', (req, res) => {
   if (req.userRole !== 'admin') {
@@ -23,7 +23,5 @@ router.get('/:userId', (req, res) => {
   }
   UserController.getUserById(req, res);
 });
-
-router.delete('/:userId', UserController.deleteUser);
 
 export default router;

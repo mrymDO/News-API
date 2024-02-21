@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt';
 import User from '../models/user.js';
 import fs from "fs"
+
 class UserController {
   async updateUser(req, res) {
     const { userId } = req;
@@ -37,17 +38,18 @@ class UserController {
     if (!currentUser || !user) {
       return res.status(404).json({ message: 'User not found' });
     }
-    if (user.role == 'admin' || (user.role == 'user' && userId == id)) {
+    if (user.role == 'admin' || (user.role === 'user' && userId === id)) {
       const { profilePicture } = currentUser
 
       if (profilePicture) {
         fs.unlinkSync(profilePicture)
       }
-      User.deleteOne({ _id: id })
+      await User.deleteOne({ _id: id })
       return res.status(200).json({ message: 'User deleted successfully' });
     }
     res.status(400).json({ message: 'cannot delete user' });
   }
+  
   async getAllUsers(req, res) {
     const user = await User.findById(req.userId);
     if (!user || user.role !== 'admin') {
@@ -69,7 +71,6 @@ class UserController {
     }
     res.status(200).json(userById);
   }
-
 }
 
 export default new UserController();
