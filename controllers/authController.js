@@ -4,7 +4,7 @@ import { generateAccessToken } from '../utils/jwt.js';
 
 class UserController {
   async registerUser(req, res) {
-    const { username, email, password } = req.body;
+    const { username, email, password, role } = req.body;
     if (!username || !password || !email) {
       return res.status(400).json({ message: 'Username, email and password are required' });
     }
@@ -18,6 +18,7 @@ class UserController {
       username,
       email,
       password: hashedPassword,
+      role: role || 'user', // added role
     });
 
     if (!newUser) {
@@ -25,7 +26,7 @@ class UserController {
     }
 
 
-    const token = generateAccessToken(newUser._id)
+    const token = generateAccessToken(newUser._id, newUser.role)  //added user.role
     res.status(201).json({ message: 'User registered successfully', username: newUser.username, token });
 
   }
@@ -44,7 +45,7 @@ class UserController {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    const token = generateAccessToken(user._id)
+    const token = generateAccessToken(user._id, user.role) //added user.role
     res.status(200).json({ message: 'Login successful', token, username: user.username });
 
   }

@@ -48,6 +48,28 @@ class UserController {
     }
     res.status(400).json({ message: 'cannot delete user' });
   }
+  async getAllUsers(req, res) {
+    const user = await User.findById(req.userId);
+    if (!user || user.role !== 'admin') {
+      return res.status(403).json({ message: 'Forbidden - Admin access required' });
+    }
+    const users = await User.find({}, '-password');
+    res.status(200).json(users);
+  }
+
+  async getUserById(req, res) {
+    const user = await User.findById(req.userId);
+    if (!user || user.role !== 'admin') {
+      return res.status(403).json({ message: 'Forbidden - Admin access required' });
+    }
+    const userId = req.params.userId;
+    const userById = await User.findById(userId, '-password');
+    if (!userById) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.status(200).json(userById);
+  }
+
 }
 
 export default new UserController();
