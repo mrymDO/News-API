@@ -1,35 +1,53 @@
 import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
 import User from '../models/user.js';
-import { generateAccessToken } from '../utils/jwt.js';
-
+import fs from "fs"
 class UserController {
-    async updateUser(req, res) {
-        const { userId } = req;
-        const { username, email, password, bio } = req.body;
-        const user = await User.findById(userId);
+  async updateUser(req, res) {
+    const { userId } = req;
+    const { username, email, password, bio, role } = req.body;
+    const user = await User.findById(userId);
 
-        console.log('User found:', user);
-
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-
-        if (username) user.username = username;
-        if (email) user.email = email;
-        if (password) user.password = await bcrypt.hash(password, 10);
-        if (bio) user.bio = bio;
-        if (req.file) user.profilePicture = req.file.path;
-
-        await user.save();
-
-        console.log('UserID:', userId);
-        console.log('Request Body:', req.body);
-
-        const token = generateAccessToken(user._id);
-
-        res.status(200).json({ message: 'User updated successfully', username: user.username, token });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
     }
+
+    if (username) user.username = username;
+    if (email) user.email = email;
+    if (password) user.password = await bcrypt.hash(password, 10);
+    if (bio) user.bio = bio;
+    if (req.file) {
+      if (user.profilePicture) {
+        fs.unlinkSync(profilePicture)
+      }
+      user.profilePicture = req.file.path;
+    }
+    if (user.role == 'admin' && (role == 'admin' || role == 'user')) {
+      user.role = role
+    }
+    await user.save();
+
+    res.status(200).json({ message: 'User updated successfully', username: user.username });
+  }
+
+  async deleteUser(req, res) {
+    const { userId } = req
+    const { id } = req.params
+    const user = await User.findById(userId);
+    const currentUser = await User.findById(id);
+    if (!currentUser || !user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    if (user.role == 'admin' || (user.role == 'user' && userId == id)) {
+      const { profilePicture } = currentUser
+
+      if (profilePicture) {
+        fs.unlinkSync(profilePicture)
+      }
+      User.deleteOne({ _id: id })
+      return res.status(200).json({ message: 'User deleted successfully' });
+    }
+    res.status(400).json({ message: 'cannot delete user' });
+  }
 }
 
 export default new UserController();
