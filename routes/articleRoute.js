@@ -1,14 +1,16 @@
-import express from "express"
-import articleController from "../controllers/articleController"
+import express from "express";
+import ArticleController from '../controllers/articleController.js';
+import { authenticateToken } from '../middleware/authMiddleware.js';
 
-const router = express.Router()
+const router = express.Router();
 
-router.post('/', articleController.add)
-router.get('/', articleController.getAll)
-router.get('/:id', articleController.get)
-router.delete('/:id', articleController.delete)
-router.put('/:id', articleController.update)
+router.get('/', ArticleController.getAll);
+router.get('/:id', ArticleController.get);
 
+router.use(authenticateToken);
 
+router.post('/', ArticleController.add);
+router.delete('/:id', ArticleController.delete);
+router.put('/:id', ArticleController.update);
 
-export default router
+export default router;

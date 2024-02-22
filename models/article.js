@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 const articleSchema = new mongoose.Schema({
   author: {
-    type: ObjectId,
+    type: mongoose.ObjectId,
     ref: 'User',
     required: true,
   },
