@@ -1,4 +1,5 @@
 import Category from '../models/category.js';
+import User from '../models/user.js';
 
 class CategoryController {
     async getAll(req, res) {
@@ -29,8 +30,9 @@ class CategoryController {
     }
 
     async update(req, res) {
-        if (!req.user || req.user.role !== 'admin') {
-            return res.status(403).json({ message: 'Permission denied' });
+        const user = await User.findById(req.userId);
+        if (!user || user.role !== 'admin') {
+            return res.status(403).json({ message: 'Forbidden - Admin access required' });
         }
 
         const { id } = req.params;
@@ -47,13 +49,14 @@ class CategoryController {
     }
 
     async delete(req, res) {
-        if (!req.user || req.user.role !== 'admin') {
-            return res.status(403).json({ message: 'Permission denied' });
+        const user = await User.findById(req.userId);
+        if (!user || user.role !== 'admin') {
+            return res.status(403).json({ message: 'Forbidden - Admin access required' });
         }
 
         const { id } = req.params;
 
-        const deletedCategory = await Category.findByIdAndRemove(id);
+        const deletedCategory = await Category.findByIdAndDelete(id);
 
         if (!deletedCategory) {
             return res.status(404).json({ message: 'Category not found' });
