@@ -4,15 +4,12 @@ const categorySchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
+    unique: true,
   },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-  updatedAt: {
-    type: Date,
-    default: Date.now,
-  },
+
+  description: {
+    type: String,
+  }
 });
 
 const Category = mongoose.model('Category', categorySchema);

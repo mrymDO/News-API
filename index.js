@@ -7,6 +7,7 @@ import dotenv from 'dotenv';
 import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import articleRoute from './routes/articleRoute.js';
+import categoryRoutes from './routes/categoryRoutes.js';
 import { authenticateToken } from "./middleware/authMiddleware.js";
 
 dotenv.config();
@@ -29,6 +30,7 @@ app.get('/', authenticateToken, (req, res) => {
 app.use('/', authRoutes);
 app.use('/user', userRoutes);
 app.use('/article', articleRoute);
+app.use('/category', categoryRoutes);
 
 app.use((err, req, res, next) => {
     console.error(err.message);

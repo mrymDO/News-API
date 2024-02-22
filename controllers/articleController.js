@@ -106,6 +106,18 @@ class ArticleController {
     }
   }
 
+  async getByCategory(req, res) {
+    const { categoryId } = req.params;
+    const articles = await Article.find({ category: categoryId });
+    return res.status(200).json(articles);
+  }
+
+  async getByUser(req, res) {
+    const { userId } = req.params;
+    const articles = await Article.find({ author: userId });
+    return res.status(200).json(articles);
+  }
+
   async delete(req, res) {
     const { userId } = req
     const { id } = req.params
@@ -120,6 +132,19 @@ class ArticleController {
     }
 
     return res.status(400).json({ messgae: "cannot delete article" })
+  }
+
+  async search(req, res) {
+    const { user, category, title, content } = req.query;
+    const searchQuery = {};
+
+    if (user) searchQuery.author = user;
+    if (category) searchQuery.category = category;
+    if (title) searchQuery.title = { $regex: title, $options: 'i' };
+    if (content) searchQuery.content = { $regex: content, $options: 'i' };
+
+    const articles = await Article.find(searchQuery);
+    return res.status(200).json(articles);
   }
 }
 
