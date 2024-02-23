@@ -18,7 +18,7 @@ const articleSchema = new mongoose.Schema({
     type: String,
   },
   category: {
-    type: [mongoose.Types.ObjectId],
+    type: mongoose.Types.ObjectId,
     ref: 'Category',
   },
   createdAt: {

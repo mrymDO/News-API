@@ -3,56 +3,69 @@ import User from '../models/user.js';
 import Category from '../models/category.js';
 import upload from '../config/multerConfig.js';
 import fs from 'fs';
+import mongoose from 'mongoose';
 
 class ArticleController {
   async get(req, res) {
     const { id } = req.params
 
-    const article = Article.findById(id)
+    const article = await Article.findById(id)
 
     if (!article) {
       return res.status(404).json({ message: "Article not found" })
     }
 
-    return res.status(200).json({ ...article })
+    return res.status(200).json({ article })
   }
 
   async getAll(req, res) {
-    const articles = await Article.find();
+    const articles = await Article.find().sort({ createdAt: 'desc' });;
     return res.status(200).json(articles);
   }
 
   async add(req, res) {
-    const  { userId } = req;
-    const { title, image, content, category } = req.body;
-
+    const { userId } = req;
+    const { title, content, category } = req.body;
+  
     if (!title || !content) {
       return res.status(400).json({ message: "Title and content are required" });
     }
+  
     const user = await User.findById(userId);
+  
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-
+  
     const uploadImage = upload.single('image');
-
+  
     uploadImage(req, res, async (err) => {
       if (err) {
         return res.status(400).json({ message: "Error uploading image" });
       }
+  
+      let categoryObject = null;
+  
       if (category) {
-        const validCategory = await Category.findById(category);
-        if (!validCategory) {
-        return res.status(400).json({ message: "Invalid category ID provided" });
+        categoryObject = await Category.findOne({ name: category }).exec();
+  
+        if (!categoryObject) {
+          categoryObject = await Category.findById(category).exec();
+          if (!categoryObject) {
+            return res.status(400).json({ message: "Invalid category name provided" });
+          }
         }
       }
+  
       const newArticle = await Article.create({
         title,
-        image: req.file ? req.file.path : "",
         content,
-        category,
+        image: req.file ? req.file.path : "",
         author: userId,
+        category: categoryObject ? categoryObject._id : null,
       });
+  
+      
       return res.status(201).json(newArticle);
     });
   }
@@ -61,11 +74,11 @@ class ArticleController {
     const { userId } = req;
     const { id } = req.params;
     const { title, content, category } = req.body;
-
+  
     if (!title || !content) {
       return res.status(400).json({ message: "Title and content are required" });
     }
-    
+  
     const user = await User.findById(userId);
     const article = await Article.findById(id);
   
@@ -73,19 +86,30 @@ class ArticleController {
       return res.status(404).json({ message: "Article not found" });
     }
   
-    if (category) {
-      const validCategory = await Category.findById(category);
+    let newCategoryId = article.category;
   
-      if (!validCategory) {
-        return res.status(400).json({ message: "Invalid category ID provided" });
+    if (category) {
+      if (mongoose.Types.ObjectId.isValid(category)) {
+        newCategoryId = mongoose.Types.ObjectId(category);
+      } else {
+        const validCategory = await Category.findOne({ name: category });
+  
+        if (!validCategory) {
+          return res.status(400).json({ message: "Invalid category name provided" });
+        }
+  
+        newCategoryId = validCategory._id;
       }
     }
+  
     const uploadImage = upload.single('image');
+  
     if (user.role === 'admin' || userId === article.author.toString()) {
       uploadImage(req, res, async (err) => {
         if (err) {
           return res.status(400).json({ message: "Error uploading image" });
         }
+  
         if (req.file && article.image) {
           fs.unlinkSync(article.image);
           console.log(`Existing image deleted: ${article.image}`);
@@ -94,7 +118,7 @@ class ArticleController {
         article.title = title || article.title;
         article.image = req.file ? req.file.path : (article.image || "");
         article.content = content || article.content;
-        article.category = category || article.category;
+        article.category = newCategoryId;
         article.updatedAt = Date.now();
   
         await article.save();
@@ -105,7 +129,7 @@ class ArticleController {
       return res.status(403).json({ message: "Permission denied" });
     }
   }
-
+  
   async getByCategory(req, res) {
     const { categoryId } = req.params;
     const articles = await Article.find({ category: categoryId });
@@ -127,7 +151,7 @@ class ArticleController {
       return res.status(404).json({ message: "Article not found" })
     }
     if (user.role == 'admin' || userId == article.author) {
-      Article.deleteOne({ _id: id });
+      await Article.deleteOne({ _id: id });
       return res.status(200).json({ message: "Article deleted" })
     }
 
