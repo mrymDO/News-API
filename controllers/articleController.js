@@ -24,136 +24,128 @@ class ArticleController {
   }
 
   async add(req, res) {
+    console.log(req.body);
     const { userId } = req;
     const { title, content, category } = req.body;
-  
+
     if (!title || !content) {
       return res.status(400).json({ message: "Title and content are required" });
     }
-  
+
     const user = await User.findById(userId);
-  
+
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-  
-    const uploadImage = upload.single('image');
-  
-    uploadImage(req, res, async (err) => {
-      if (err) {
-        return res.status(400).json({ message: "Error uploading image" });
-      }
-  
-      let categoryObject = null;
-  
-      if (category) {
-        categoryObject = await Category.findOne({ name: category }).exec();
-  
+    let categoryObject = null
+    if (category) {
+      categoryObject = await Category.findOne({ name: category });
+
+      if (!categoryObject) {
+        categoryObject = await Category.findById(category);
         if (!categoryObject) {
-          categoryObject = await Category.findById(category).exec();
-          if (!categoryObject) {
-            return res.status(400).json({ message: "Invalid category name provided" });
-          }
+          return res.status(400).json({ message: "Invalid category name provided" });
         }
       }
-  
-      const newArticle = await Article.create({
-        title,
-        content,
-        image: req.file ? req.file.path : "",
-        author: userId,
-        category: categoryObject ? categoryObject._id : null,
-      });
-  
-      
-      return res.status(201).json(newArticle);
+    }
+    const file = req.files[0]
+    if (!file) {
+      return res.status(400).json({ message: "Image not found" })
+    }
+    const newArticle = await Article.create({
+      title,
+      content,
+      image: file.path,
+      author: userId,
+      category: categoryObject._id
     });
+    return res.status(201).json(newArticle);
   }
 
   async update(req, res) {
     const { userId } = req;
     const { id } = req.params;
     const { title, content, category } = req.body;
-  
+
     if (!title && !content && !category && !req.file) {
       return res.status(400).json({ message: "No fields to update" });
     }
-  
+
     const user = await User.findById(userId);
     const article = await Article.findById(id);
-  
+
     if (!article) {
       return res.status(404).json({ message: "Article not found" });
     }
-  
+
     let updateFields = {};
-  
+
     if (title) {
       updateFields.title = title;
     }
-  
+
     if (content) {
       updateFields.content = content;
     }
-  
+
     if (category) {
       let newCategoryId = article.category;
-  
+
       if (mongoose.Types.ObjectId.isValid(category)) {
         newCategoryId = mongoose.Types.ObjectId(category);
       } else {
         const validCategory = await Category.findOne({ name: category });
-  
+
         if (!validCategory) {
           return res.status(400).json({ message: "Invalid category name provided" });
         }
-  
+
         newCategoryId = validCategory._id;
       }
-  
+
       updateFields.category = newCategoryId;
     }
-  
+
     const uploadImage = upload.single('image');
-  
+
     if (user.role === 'admin' || userId === article.author.toString()) {
       uploadImage(req, res, async (err) => {
         if (err) {
           return res.status(400).json({ message: "Error uploading image" });
         }
-  
+
         if (req.file) {
           if (article.image) {
             fs.unlinkSync(article.image);
             console.log(`Existing image deleted: ${article.image}`);
           }
-  
+
           updateFields.image = req.file.path;
         }
-  
+
         updateFields.updatedAt = Date.now();
-  
+
         const updatedArticle = await Article.findByIdAndUpdate(id, { $set: updateFields }, { new: true });
-  
+
         if (!updatedArticle) {
           return res.status(404).json({ message: "Article not found" });
         }
 
         const category = await Category.findById(updatedArticle.category).select('name');
-  
+
         const responseArticle = {
           ...updatedArticle.toObject(),
           author: userId,
           category: category ? category.name : null,
         };
-  
+
         return res.status(200).json(responseArticle);
       });
     } else {
       return res.status(403).json({ message: "Permission denied" });
     }
   }
-  
+
   async getByCategory(req, res) {
     const { categoryId } = req.params;
     const articles = await Article.find({ category: categoryId });
