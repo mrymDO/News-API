@@ -19,12 +19,19 @@ class ArticleController {
   }
 
   async getAll(req, res) {
-    const articles = await Article.find().sort({ createdAt: 'desc' });;
+    const { user, category, title, content } = req.query;
+    const searchQuery = {};
+
+    if (user) searchQuery.author = user;
+    if (category) searchQuery.category = category;
+    if (title) searchQuery.title = { $regex: title, $options: 'i' };
+    if (content) searchQuery.content = { $regex: content, $options: 'i' };
+
+    const articles = await Article.find(searchQuery);
     return res.status(200).json(articles);
   }
 
   async add(req, res) {
-    console.log(req.body);
     const { userId } = req;
     const { title, content, category } = req.body;
 
@@ -154,7 +161,7 @@ class ArticleController {
 
   async getByUser(req, res) {
     const { userId } = req.params;
-    const articles = await Article.find({ author: userId });
+    const articles = await Article.find({ author: mongoose.Types.ObjectId(userId) });
     return res.status(200).json(articles);
   }
 

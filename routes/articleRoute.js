@@ -10,9 +10,6 @@ router.get('/:id', ArticleController.get);
 
 router.use(authenticateToken);
 
-router.get('/:categoryId', ArticleController.getByCategory);
-router.get('/:userId', ArticleController.getByUser);
-router.get('/search', ArticleController.search);
 
 router.post('/', upload.any(), ArticleController.add);
 router.delete('/:id', ArticleController.delete);
