@@ -75,8 +75,8 @@ class ArticleController {
     const { id } = req.params;
     const { title, content, category } = req.body;
   
-    if (!title || !content) {
-      return res.status(400).json({ message: "Title and content are required" });
+    if (!title && !content && !category && !req.file) {
+      return res.status(400).json({ message: "No fields to update" });
     }
   
     const user = await User.findById(userId);
@@ -86,9 +86,19 @@ class ArticleController {
       return res.status(404).json({ message: "Article not found" });
     }
   
-    let newCategoryId = article.category;
+    let updateFields = {};
+  
+    if (title) {
+      updateFields.title = title;
+    }
+  
+    if (content) {
+      updateFields.content = content;
+    }
   
     if (category) {
+      let newCategoryId = article.category;
+  
       if (mongoose.Types.ObjectId.isValid(category)) {
         newCategoryId = mongoose.Types.ObjectId(category);
       } else {
@@ -100,6 +110,8 @@ class ArticleController {
   
         newCategoryId = validCategory._id;
       }
+  
+      updateFields.category = newCategoryId;
     }
   
     const uploadImage = upload.single('image');
@@ -110,20 +122,32 @@ class ArticleController {
           return res.status(400).json({ message: "Error uploading image" });
         }
   
-        if (req.file && article.image) {
-          fs.unlinkSync(article.image);
-          console.log(`Existing image deleted: ${article.image}`);
+        if (req.file) {
+          if (article.image) {
+            fs.unlinkSync(article.image);
+            console.log(`Existing image deleted: ${article.image}`);
+          }
+  
+          updateFields.image = req.file.path;
         }
   
-        article.title = title || article.title;
-        article.image = req.file ? req.file.path : (article.image || "");
-        article.content = content || article.content;
-        article.category = newCategoryId;
-        article.updatedAt = Date.now();
+        updateFields.updatedAt = Date.now();
   
-        await article.save();
+        const updatedArticle = await Article.findByIdAndUpdate(id, { $set: updateFields }, { new: true });
   
-        return res.status(200).json(article);
+        if (!updatedArticle) {
+          return res.status(404).json({ message: "Article not found" });
+        }
+
+        const category = await Category.findById(updatedArticle.category).select('name');
+  
+        const responseArticle = {
+          ...updatedArticle.toObject(),
+          author: userId,
+          category: category ? category.name : null,
+        };
+  
+        return res.status(200).json(responseArticle);
       });
     } else {
       return res.status(403).json({ message: "Permission denied" });
