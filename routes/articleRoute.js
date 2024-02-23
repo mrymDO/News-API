@@ -13,6 +13,6 @@ router.use(authenticateToken);
 
 router.post('/', upload.any(), ArticleController.add);
 router.delete('/:id', ArticleController.delete);
-router.put('/:id', ArticleController.update);
+router.put('/:id', upload.any(), ArticleController.update);
 
 export default router;

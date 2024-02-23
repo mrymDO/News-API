@@ -1,7 +1,6 @@
 import Article from '../models/article.js';
 import User from '../models/user.js';
 import Category from '../models/category.js';
-import upload from '../config/multerConfig.js';
 import fs from 'fs';
 import mongoose from 'mongoose';
 
@@ -99,6 +98,10 @@ class ArticleController {
       let newCategoryId = article.category;
 
       if (mongoose.Types.ObjectId.isValid(category)) {
+        categoryObject = await Category.findById(category);
+        if (!categoryObject) {
+          return res.status(400).json({ message: "Invalid category name provided" });
+        }
         newCategoryId = mongoose.Types.ObjectId(category);
       } else {
         const validCategory = await Category.findOne({ name: category });
@@ -113,56 +116,35 @@ class ArticleController {
       updateFields.category = newCategoryId;
     }
 
-    const uploadImage = upload.single('image');
+    const file = req.files[0];
 
     if (user.role === 'admin' || userId === article.author.toString()) {
-      uploadImage(req, res, async (err) => {
-        if (err) {
-          return res.status(400).json({ message: "Error uploading image" });
+      if (!file) {
+        return res.status(400).json({ message: "Error uploading image" });
+      } else {
+        if (article.image) {
+          fs.unlinkSync(article.image);
+          console.log(`Existing image deleted: ${article.image}`);
         }
 
-        if (req.file) {
-          if (article.image) {
-            fs.unlinkSync(article.image);
-            console.log(`Existing image deleted: ${article.image}`);
-          }
+        updateFields.image = file.path;
+      }
+      updateFields.updatedAt = Date.now();
+      const updatedArticle = await Article.findByIdAndUpdate(id, { $set: updateFields }, { new: true });
 
-          updateFields.image = req.file.path;
-        }
+      if (!updatedArticle) {
+        return res.status(404).json({ message: "Article not found" });
+      }
+      const responseArticle = {
+        ...updatedArticle.toObject(),
+        author: userId,
+        category: category ? category.name : null,
+      };
 
-        updateFields.updatedAt = Date.now();
-
-        const updatedArticle = await Article.findByIdAndUpdate(id, { $set: updateFields }, { new: true });
-
-        if (!updatedArticle) {
-          return res.status(404).json({ message: "Article not found" });
-        }
-
-        const category = await Category.findById(updatedArticle.category).select('name');
-
-        const responseArticle = {
-          ...updatedArticle.toObject(),
-          author: userId,
-          category: category ? category.name : null,
-        };
-
-        return res.status(200).json(responseArticle);
-      });
+      return res.status(200).json(responseArticle);
     } else {
       return res.status(403).json({ message: "Permission denied" });
     }
-  }
-
-  async getByCategory(req, res) {
-    const { categoryId } = req.params;
-    const articles = await Article.find({ category: categoryId });
-    return res.status(200).json(articles);
-  }
-
-  async getByUser(req, res) {
-    const { userId } = req.params;
-    const articles = await Article.find({ author: mongoose.Types.ObjectId(userId) });
-    return res.status(200).json(articles);
   }
 
   async delete(req, res) {
@@ -174,6 +156,9 @@ class ArticleController {
       return res.status(404).json({ message: "Article not found" })
     }
     if (user.role == 'admin' || userId == article.author) {
+      if (article.image) {
+        fs.unlinkSync(article.image);
+      }
       await Article.deleteOne({ _id: id });
       return res.status(200).json({ message: "Article deleted" })
     }
@@ -181,18 +166,6 @@ class ArticleController {
     return res.status(400).json({ messgae: "cannot delete article" })
   }
 
-  async search(req, res) {
-    const { user, category, title, content } = req.query;
-    const searchQuery = {};
-
-    if (user) searchQuery.author = user;
-    if (category) searchQuery.category = category;
-    if (title) searchQuery.title = { $regex: title, $options: 'i' };
-    if (content) searchQuery.content = { $regex: content, $options: 'i' };
-
-    const articles = await Article.find(searchQuery);
-    return res.status(200).json(articles);
-  }
 }
 
 
