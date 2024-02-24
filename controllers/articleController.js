@@ -54,14 +54,15 @@ class ArticleController {
         }
       }
     }
-    const file = req.files[0]
-    if (!file) {
-      return res.status(400).json({ message: "Image not found" })
-    }
+    const file = req.files ? req.files[0] : null;
+    //if (!file) {
+      //return res.status(400).json({ message: "Image not found" })
+    //}
+    const imagePath = file ? file.path : "";
     const newArticle = await Article.create({
       title,
       content,
-      image: file.path,
+      image: imagePath,
       author: userId,
       category: categoryObject._id
     });
@@ -94,6 +95,8 @@ class ArticleController {
       updateFields.content = content;
     }
 
+    let categoryObject = null;
+    
     if (category) {
       let newCategoryId = article.category;
 
@@ -116,18 +119,22 @@ class ArticleController {
       updateFields.category = newCategoryId;
     }
 
-    const file = req.files[0];
+    const files = req.files;
+    let imagePath = "";
+    let file;
+    if (files && files.length > 0) {
+      file = files[0];
+      imagePath = file.path;
+    }
 
     if (user.role === 'admin' || userId === article.author.toString()) {
-      if (!file) {
-        return res.status(400).json({ message: "Error uploading image" });
-      } else {
+      if (imagePath !== "") {
         if (article.image) {
           fs.unlinkSync(article.image);
           console.log(`Existing image deleted: ${article.image}`);
         }
 
-        updateFields.image = file.path;
+        updateFields.image = imagePath;
       }
       updateFields.updatedAt = Date.now();
       const updatedArticle = await Article.findByIdAndUpdate(id, { $set: updateFields }, { new: true });
