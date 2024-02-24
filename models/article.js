@@ -21,6 +21,18 @@ const articleSchema = new mongoose.Schema({
     type: mongoose.Types.ObjectId,
     ref: 'Category',
   },
+  reviews: [
+    {
+      type: mongoose.ObjectId,
+      ref: 'Review',
+    },
+  ],
+  likes: [
+    {
+      type: mongoose.ObjectId,
+      ref: 'Like',
+    },
+  ],
   createdAt: {
     type: Date,
     default: Date.now,

@@ -163,6 +163,8 @@ class ArticleController {
       return res.status(404).json({ message: "Article not found" })
     }
     if (user.role == 'admin' || userId == article.author) {
+      await Review.deleteMany({ article: id });
+      await Like.deleteMany({ article: id });
       if (article.image) {
         fs.unlinkSync(article.image);
       }
@@ -170,7 +172,7 @@ class ArticleController {
       return res.status(200).json({ message: "Article deleted" })
     }
 
-    return res.status(400).json({ messgae: "cannot delete article" })
+    return res.status(400).json({ message: "cannot delete article" })
   }
 
 }

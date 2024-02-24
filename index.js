@@ -8,6 +8,8 @@ import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import articleRoute from './routes/articleRoute.js';
 import categoryRoutes from './routes/categoryRoutes.js';
+import reviewRoutes from './routes/reviewRoutes.js';
+import likeRoutes from './routes/likeRoutes.js';
 import { authenticateToken } from "./middleware/authMiddleware.js";
 
 dotenv.config();
@@ -30,6 +32,8 @@ app.use('/', authRoutes);
 app.use('/user', userRoutes);
 app.use('/article', articleRoute);
 app.use('/category', categoryRoutes);
+app.use('/reviews', reviewRoutes);
+app.use('/likes', likeRoutes);
 
 app.use((err, req, res, next) => {
     console.error(err.message);
