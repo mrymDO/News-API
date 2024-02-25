@@ -25,7 +25,7 @@ class ArticleController {
   }
 
   async getAll(req, res) {
-    const { user, category, title, content } = req.query;
+    const { user, category, title, content, page = 1, limit = 10 } = req.query;
     const searchQuery = {};
 
     if (user) searchQuery.author = user;
@@ -33,7 +33,11 @@ class ArticleController {
     if (title) searchQuery.title = { $regex: title, $options: 'i' };
     if (content) searchQuery.content = { $regex: content, $options: 'i' };
 
-    const articles = await Article.find(searchQuery);
+    const skip = (page - 1) * limit;
+    
+    const articles = await Article.find(searchQuery)
+         .skip(skip)
+         .limit(limit);
     const articlesWithReviewsAndLikes = [];
 
     for (const article of articles) {
