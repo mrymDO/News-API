@@ -1,5 +1,6 @@
 import Review from '../models/review.js';
 import User from '../models/user.js';
+import Article from '../models/article.js';
 
 class ReviewController {
     
@@ -7,6 +8,18 @@ class ReviewController {
         const { userId } = req;
         const { articleId, content } = req.body;
 
+        const existingArticle = await Article.findById(articleId);
+        
+        if (!existingArticle) {
+            return res.status(404).json({ message: 'Article not found' });
+        }
+
+        const existingReview = await Review.findOne({ user: userId, article: articleId });
+        
+        if (existingReview) {
+            return res.status(400).json({ message: 'User has already reviewed this article' });
+        }
+        
         const review = await Review.create({
             user: userId,
             article: articleId,

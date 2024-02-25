@@ -4,6 +4,8 @@ import { authenticateToken } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
+router.get('/', LikeController.getAll);
+
 router.use(authenticateToken);
 
 router.post('/', LikeController.create);

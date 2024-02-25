@@ -1,10 +1,15 @@
 import Article from '../models/article.js';
 import User from '../models/user.js';
+import Review from '../models/review.js';
+import Like from '../models/like.js';
 import Category from '../models/category.js';
 import fs from 'fs';
 import mongoose from 'mongoose';
+import { fetchReviewsAndLikes } from '../utils/articleUtils.js';
+
 
 class ArticleController {
+
   async get(req, res) {
     const { id } = req.params
 
@@ -14,7 +19,9 @@ class ArticleController {
       return res.status(404).json({ message: "Article not found" })
     }
 
-    return res.status(200).json({ article })
+    const { reviews, likes } = await fetchReviewsAndLikes(id);
+
+    return res.status(200).json({ article: { ...article.toObject(), reviews, likes } });
   }
 
   async getAll(req, res) {
@@ -27,7 +34,14 @@ class ArticleController {
     if (content) searchQuery.content = { $regex: content, $options: 'i' };
 
     const articles = await Article.find(searchQuery);
-    return res.status(200).json(articles);
+    const articlesWithReviewsAndLikes = [];
+
+    for (const article of articles) {
+      const { reviews, likes } = await fetchReviewsAndLikes(article._id);
+      articlesWithReviewsAndLikes.push({ ...article.toObject(), reviews, likes });
+  }
+
+    return res.status(200).json(articlesWithReviewsAndLikes);
   }
 
   async add(req, res) {
@@ -160,19 +174,36 @@ class ArticleController {
     const user = await User.findById(userId);
     const article = await Article.findById(id)
     if (!article) {
+      console.log('Article not found:', id);
       return res.status(404).json({ message: "Article not found" })
     }
     if (user.role == 'admin' || userId == article.author) {
-      await Review.deleteMany({ article: id });
-      await Like.deleteMany({ article: id });
-      if (article.image) {
-        fs.unlinkSync(article.image);
+      const reviews = await Review.find({ article: id });
+      console.log('Found reviews:', reviews);
+      if (reviews && reviews.length > 0) {
+        console.log('Deleting reviews...');
+        await Review.deleteMany({ article: id });
       }
+      const likes = await Like.find({ article: id });
+      console.log('Found likes:', likes);
+      if (likes && likes.length > 0) {
+        console.log('Deleting likes...');
+        await Like.deleteMany({ article: id });
+      }
+      if (article.image) {
+        const imagePath = article.image.replace(/\\/g, '/');
+        console.log('Deleting image...');
+        fs.unlinkSync(imagePath);
+        console.log('Image deleted successfully.');
+      }
+      console.log('Deleting article...');
       await Article.deleteOne({ _id: id });
+      console.log('Article deleted successfully.');
       return res.status(200).json({ message: "Article deleted" })
     }
 
-    return res.status(400).json({ message: "cannot delete article" })
+    console.log('Permission denied.');
+    return res.status(403).json({ message: "Permission denied" })
   }
 
 }

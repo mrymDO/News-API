@@ -50,6 +50,11 @@ class LikeController{
 
         return res.status(200).json({ message: 'Like deleted' });
     }
+
+    async getAll(req, res) {
+        const likes = await Like.find();
+        return res.status(200).json(likes);
+    }
 }
 
 export default new LikeController();
