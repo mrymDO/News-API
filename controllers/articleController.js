@@ -192,9 +192,11 @@ class ArticleController {
       }
       if (article.image) {
         const imagePath = article.image.replace(/\\/g, '/');
-        console.log('Deleting image...');
-        fs.unlinkSync(imagePath);
-        console.log('Image deleted successfully.');
+        if (fs.existsSync(imagePath)) {
+          console.log('Deleting image...');
+          fs.unlinkSync(imagePath);
+          console.log('Image deleted successfully.');
+        }
       }
       console.log('Deleting article...');
       await Article.deleteOne({ _id: id });
