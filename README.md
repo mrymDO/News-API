@@ -48,5 +48,13 @@ Rename .env_copy to .env and fill in the necessary environment variables.
 - **mongoose:** MongoDB object modeling for Node.js.
 - **multer:** Middleware for handling multipart/form-data.
 - **nodemon:** Utility that restarts the server on file changes.
+- **swagger-jsdoc:** Swagger documentation for your API.
+- **swagger-ui-express:** Swagger UI to visualize and interact with the API documentation.
+
+## API Documentation
+
+Explore the API endpoints and learn how to interact with the backend by checking the Swagger documentation.
+
+[Swagger API Documentation](http://localhost:5000/api-docs)
 
 

@@ -3,6 +3,8 @@ import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import swaggerUi from 'swagger-ui-express';
+import swaggerSpec from './config/swaggerConfig.js';
 
 import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
@@ -34,6 +36,10 @@ app.use('/article', articleRoute);
 app.use('/category', categoryRoutes);
 app.use('/reviews', reviewRoutes);
 app.use('/likes', likeRoutes);
+
+// Serve Swagger UI
+app.use('/api-docs', swaggerUi.serve);
+app.get('/api-docs', swaggerUi.setup(swaggerSpec));
 
 app.use((err, req, res, next) => {
     console.error(err.message);
