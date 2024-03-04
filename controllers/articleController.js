@@ -50,10 +50,10 @@ class ArticleController {
 
   async add(req, res) {
     const { userId } = req;
-    const { title, content, category } = req.body;
+    const { title, content, category, url } = req.body;
 
-    if (!title || !content) {
-      return res.status(400).json({ message: "Title and content are required" });
+    if (!title || !content || !url) {
+      return res.status(400).json({ message: "Title, content and url are required" });
     }
 
     const user = await User.findById(userId);
@@ -82,7 +82,8 @@ class ArticleController {
       content,
       image: imagePath,
       author: userId,
-      category: categoryObject ? categoryObject._id : null
+      category: categoryObject ? categoryObject._id : null,
+      url,
     });
     return res.status(201).json(newArticle);
   }

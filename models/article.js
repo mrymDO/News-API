@@ -21,6 +21,11 @@ const articleSchema = new mongoose.Schema({
     type: mongoose.Types.ObjectId,
     ref: 'Category',
   },
+  url: {
+    type: String,
+    required: true,
+    unique: true,
+  },
   reviews: [
     {
       type: mongoose.ObjectId,
