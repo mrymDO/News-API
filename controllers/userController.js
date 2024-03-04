@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt';
 import User from '../models/user.js';
-import fs from "fs"
+import Article from '../models/article.js';
+import fs from "fs";
 
 class UserController {
   async updateUser(req, res) {
@@ -70,6 +71,22 @@ class UserController {
       return res.status(404).json({ message: 'User not found' });
     }
     res.status(200).json(userById);
+  }
+
+  async getUserProfile(req, res) {
+    const userId = req.params.userId;
+    const user = await User.findById(userId, '-password');
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    const userArticles = await Article.find({ author: userId });
+    res.status(200).json({
+      username: user.username,
+      email: user.email,
+      bio: user.bio,
+      profilePicture: user.profilePicture,
+      articles: userArticles,
+    });
   }
 }
 

@@ -82,7 +82,7 @@ class ArticleController {
       content,
       image: imagePath,
       author: userId,
-      category: categoryObject._id
+      category: categoryObject ? categoryObject._id : null
     });
     return res.status(201).json(newArticle);
   }

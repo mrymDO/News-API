@@ -116,6 +116,30 @@ const router = express.Router();
  *         description: User not found
  */
 
+/**
+ * @swagger
+ * /user/profile/{userId}:
+ *   get:
+ *     tags: [User]
+ *     summary: Get user profile by ID
+ *     description: Retrieve a user's profile by its ID. Requires Bearer token for authentication.
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         description: User ID
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Successful response
+ *       403:
+ *         description: Forbidden - Admin access required
+ *       404:
+ *         description: User not found
+ */
+router.get('/profile/:userId', UserController.getUserProfile);
+
 router.use(authenticateToken);
 
 router.put('/update', upload.single('profilePicture'), UserController.updateUser);
