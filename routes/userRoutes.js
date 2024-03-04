@@ -14,16 +14,23 @@ const router = express.Router();
 
 /**
  * @swagger
- * /user/update:
+ * /user/update/{id}:
  *   put:
  *     tags: [User]
  *     summary: Update a user
  *     description: Update user details. Requires Bearer token for authentication.
  *     security:
  *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         description: User ID
+ *         required: true
+ *         schema:
+ *           type: string
  *     requestBody:
  *       description: User data
- *       required: true
+ *       required: false
  *       content:
  *         multipart/form-data:
  *           schema:
@@ -41,10 +48,6 @@ const router = express.Router();
  *                 type: string
  *               profilePicture:
  *                 type: string
- *             required:
- *               - username
- *               - email
- *               - password
  *     responses:
  *       200:
  *         description: User updated successfully
