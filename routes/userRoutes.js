@@ -142,7 +142,7 @@ router.get('/profile/:userId', UserController.getUserProfile);
 
 router.use(authenticateToken);
 
-router.put('/update', upload.single('profilePicture'), UserController.updateUser);
+router.put('/update/:id', upload.single('profilePicture'), UserController.updateUser);
 router.delete('/delete/:id', UserController.deleteUser)
 
 router.get('/all', (req, res) => {

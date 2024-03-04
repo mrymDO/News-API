@@ -4,10 +4,15 @@ import { generateAccessToken } from '../utils/jwt.js';
 
 class UserController {
   async registerUser(req, res) {
-    const { username, email, password, role } = req.body;
+    const { username, email, password } = req.body;
     if (!username || !password || !email) {
       return res.status(400).json({ message: 'Username, email and password are required' });
     }
+    
+    const existingUsersCount = await User.countDocuments();
+
+    const role = existingUsersCount === 0 ? 'admin' : 'user';
+    
     const existingUser = await User.findOne({ email });
 
     if (existingUser) {

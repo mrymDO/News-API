@@ -6,6 +6,7 @@ import fs from "fs";
 class UserController {
   async updateUser(req, res) {
     const { userId } = req;
+    const { id } = req.params;
     const { username, email, password, bio, role } = req.body;
     const user = await User.findById(userId);
 
@@ -13,20 +14,30 @@ class UserController {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    if (username) user.username = username;
-    if (email) user.email = email;
-    if (password) user.password = await bcrypt.hash(password, 10);
-    if (bio) user.bio = bio;
+    const userToUpdate = await User.findById(id);
+
+    if (!userToUpdate) {
+      return res.status(404).json({ message: 'User to update not found' });
+    }
+
+    if (user.role !== 'admin' && userId !== id) {
+      return res.status(403).json({ message: 'Forbidden - You are not allowed to update this user' });
+    }
+
+    if (username) userToUpdate.username = username;
+    if (email) userToUpdate.email = email;
+    if (password) userToUpdate.password = await bcrypt.hash(password, 10);
+    if (bio) userToUpdate.bio = bio;
     if (req.file) {
-      if (user.profilePicture) {
-        fs.unlinkSync(profilePicture)
+      if (userToUpdate.profilePicture) {
+        fs.unlinkSync(userToUpdate.profilePicture)
       }
-      user.profilePicture = req.file.path;
+      userToUpdate.profilePicture = req.file.path;
     }
-    if (user.role == 'admin' && (role == 'admin' || role == 'user')) {
-      user.role = role
+    if (user.role === 'admin' && (role === 'admin' || role === 'user')) {
+      userToUpdate.role = role
     }
-    await user.save();
+    await userToUpdate.save();
 
     res.status(200).json({ message: 'User updated successfully', username: user.username });
   }
