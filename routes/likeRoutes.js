@@ -1,5 +1,5 @@
 import express from 'express';
-import LikeController from '../controllers/LikeController.js';
+import LikeController from '../controllers/likeController.js';
 import { authenticateToken } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
