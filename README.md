@@ -55,6 +55,6 @@ Rename .env_copy to .env and fill in the necessary environment variables.
 
 Explore the API endpoints and learn how to interact with the backend by checking the Swagger documentation.
 
-[Swagger API Documentation](http://localhost:5000/api-docs)
+[Swagger API Documentation](https://technews.cyclic.app/api-docs/)
 
 
