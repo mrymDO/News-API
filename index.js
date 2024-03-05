@@ -23,44 +23,39 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 const PORT = process.env.PORT || 5000;
+const CONNECTION_URL = process.env.MONGODB_URI;
 
-// Check if running in production environment
-if (process.env.NODE_ENV !== 'test') {
-    const CONNECTION_URL = process.env.MONGODB_URI;
-    
-    app.get('/', authenticateToken, (req, res) => {
-        res.send('Hello!');
-    });
-    
-    app.use('/', authRoutes);
-    app.use('/user', userRoutes);
-    app.use('/article', articleRoute);
-    app.use('/category', categoryRoutes);
-    app.use('/reviews', reviewRoutes);
-    app.use('/likes', likeRoutes);
-    
-    // Serve Swagger UI
-    app.use('/api-docs', swaggerUi.serve);
-    app.get('/api-docs', swaggerUi.setup(swaggerSpec));
-    
-    app.use((err, req, res, next) => {
-        console.error(err.message);
-        res.status(500).send('Server Error');
-    });
+(async () => {
+    try {
+        await mongoose.connect(CONNECTION_URL);
 
-    if (mongoose.connection.readyState === 0) {
-        // Connect to MongoDB only if not already connected
-        (async function () {
-            try {
-                await mongoose.connect(CONNECTION_URL);
-                app.listen(PORT, () => {
-                    console.log(`Server running on port: ${PORT}`);
-                });
-            } catch (error) {
-                console.error(error.message);
-            }
-        })();
+        app.get('/', authenticateToken, (req, res) => {
+            res.send('Hello!');
+        });
+
+        app.use('/', authRoutes);
+        app.use('/user', userRoutes);
+        app.use('/article', articleRoute);
+        app.use('/category', categoryRoutes);
+        app.use('/reviews', reviewRoutes);
+        app.use('/likes', likeRoutes);
+
+        // Serve Swagger UI
+        app.use('/api-docs', swaggerUi.serve);
+        app.get('/api-docs', swaggerUi.setup(swaggerSpec));
+
+        app.use((err, req, res, next) => {
+            console.error(err.message);
+            res.status(500).send('Server Error');
+        });
+
+        app.listen(PORT, () => {
+            console.log(`Server running on port: ${PORT}`);
+        });
+    } catch (error) {
+        console.error(error.message);
+        process.exit(1);
     }
-}
+})();
 
 export default app;
