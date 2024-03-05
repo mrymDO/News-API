@@ -73,10 +73,45 @@ const router = express.Router();
  *         description: Permission denied
  *       404:
  *         description: Like not found
+ *   put:
+ *     tags: [Like]
+ *     summary: Update a like by ID
+ *     description: Update a like by its ID. Requires Bearer token for authentication.
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         description: Like ID
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       description: Like data
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               type:
+ *                 type: string
+ *             required:
+ *               - type
+ *     responses:
+ *       200:
+ *         description: Successful response
+ *       400:
+ *         description: Invalid like type
+ *       403:
+ *         description: Permission denied
+ *       404:
+ *         description: Like not found
  */
 
 router.get('/', LikeController.getAll);
 router.post('/', authenticateToken, LikeController.create);
 router.delete('/:id', authenticateToken, LikeController.delete);
+router.put('/:id', authenticateToken, LikeController.update);
 
 export default router;
