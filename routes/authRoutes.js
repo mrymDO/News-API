@@ -12,7 +12,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /auth/register:
+ * /register:
  *   post:
  *     tags: [Auth]
  *     summary: Register a new user
@@ -48,7 +48,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /auth/login:
+ * /login:
  *   post:
  *     tags: [Auth]
  *     summary: User login

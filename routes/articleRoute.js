@@ -6,6 +6,7 @@ import upload from "../config/multerConfig.js";
 // Create an Express Router
 const router = express.Router();
 
+
 /**
  * @swagger
  * tags:
@@ -69,9 +70,12 @@ const router = express.Router();
  *                 type: string
  *               image:
  *                 type: string
+ *               url:
+ *                 type : string
  *             required:
  *               - title
  *               - content
+ *               - url
  *     responses:
  *       201:
  *         description: Successfully created
