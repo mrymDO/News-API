@@ -70,6 +70,7 @@ const router = express.Router();
  *                 type: string
  *               image:
  *                 type: string
+ *                 format: binary
  *               url:
  *                 type : string
  *             required:
@@ -126,6 +127,7 @@ const router = express.Router();
  *                 type: string
  *               image:
  *                 type: string
+ *                 format: binary
  *     responses:
  *       200:
  *         description: Successful response
