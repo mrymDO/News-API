@@ -2,7 +2,7 @@ import Like from '../models/like.js';
 import Article from '../models/article.js';
 import User from '../models/user.js';
 
-class LikeController{
+class LikeController {
 
     async create(req, res) {
         const { userId } = req;
@@ -22,7 +22,9 @@ class LikeController{
 
         const existingLike = await Like.findOne({ user: userId, article: articleId });
         if (existingLike) {
-            return res.status(400).json({ message: 'You have already liked or disliked this article' });
+            existingLike.type = type
+            await existingLike.save()
+            return res.status(400).json(existingLike);
         }
 
         const like = await Like.create({
