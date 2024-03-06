@@ -4,9 +4,18 @@ const options = {
   definition: {
     openapi: '3.0.0',
     info: {
-      title: 'Your API',
+      title: 'Tech News',
       version: '1.0.0',
       description: 'API documentation using Swagger',
+    },
+    components: {
+      securitySchemes: {
+        BearerAuth: {
+          type: 'apiKey',
+          in: 'header',
+          name: 'Authorization',
+        },
+      },
     },
   },
   apis: ['./routes/*.js'],

@@ -6,6 +6,7 @@ import upload from "../config/multerConfig.js";
 // Create an Express Router
 const router = express.Router();
 
+
 /**
  * @swagger
  * tags:
@@ -21,11 +22,11 @@ const router = express.Router();
  *     summary: Get all articles
  *     description: Retrieve a list of all articles.
  *     parameters:
- *       - name: user
+ *       - name: userID
  *         in: query
  *         type: string
  *         description: Filter articles by user.
- *       - name: category
+ *       - name: categoryID
  *         in: query
  *         type: string
  *         description: Filter articles by category.
@@ -69,9 +70,13 @@ const router = express.Router();
  *                 type: string
  *               image:
  *                 type: string
+ *                 format: binary
+ *               url:
+ *                 type : string
  *             required:
  *               - title
  *               - content
+ *               - url
  *     responses:
  *       201:
  *         description: Successfully created
@@ -122,9 +127,7 @@ const router = express.Router();
  *                 type: string
  *               image:
  *                 type: string
- *             required:
- *               - title
- *               - content
+ *                 format: binary
  *     responses:
  *       200:
  *         description: Successful response

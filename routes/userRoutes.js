@@ -48,6 +48,7 @@ const router = express.Router();
  *                 type: string
  *               profilePicture:
  *                 type: string
+ *                 format: binary
  *     responses:
  *       200:
  *         description: User updated successfully

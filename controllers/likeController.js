@@ -57,6 +57,30 @@ class LikeController {
         const likes = await Like.find();
         return res.status(200).json(likes);
     }
+
+    async update(req, res) {
+        const { userId } = req;
+        const { id } = req.params;
+        const { type } = req.body;
+
+        const validTypes = ['upvote', 'downvote'];
+    if (!validTypes.includes(type)) {
+      return res.status(400).json({ message: 'Invalid like type' });
+    }
+    const like = await Like.findById(id);
+
+    if (!like) {
+      return res.status(404).json({ message: 'Like not found' });
+    }
+
+    if (userId !== like.user.toString()) {
+        return res.status(403).json({ message: 'Permission denied' });
+    }
+    like.type = type;
+    await like.save();
+
+    return res.status(200).json({ message: 'Like updated', like });
+    }
 }
 
 export default new LikeController();
