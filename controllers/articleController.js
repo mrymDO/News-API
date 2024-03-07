@@ -116,11 +116,6 @@ class ArticleController {
     }
 
     let categoryObject = article.category;
-<<<<<<< HEAD
-
-=======
-
->>>>>>> 0315740d2272b089a5ab05d57ede6e7a27fcd390
     if (category) {
       let newCategoryId = article.category;
 
