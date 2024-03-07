@@ -2,7 +2,7 @@
 
 ## Overview
 
-TechNews is a cutting-edge, single-page application (SPA) designed to provide real-time updates and a personalized experience in the world of technology news. This project leverages Node.js, Express.js, Mongoose, and React to create a robust and user-friendly platform.
+TechNews API is a cutting-edge backend designed to provide real-time updates and a personalized experience in the world of technology news. This project leverages Node.js, Express.js, Mongoose, and follows a RESTful architecture.
 
 ## Features
 
@@ -33,7 +33,6 @@ Rename .env_copy to .env and fill in the necessary environment variables.
 ## Tech Stack
 
 - **Backend:** Node.js, Express.js, Mongoose (MongoDB)
-- **Frontend:** React
 
 ## Dependencies
 

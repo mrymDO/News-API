@@ -98,10 +98,6 @@ class ArticleController {
     const { id } = req.params;
     const { title, content, category } = req.body;
 
-    if (!title && !content && !category && !req.files) {
-      return res.status(400).json({ message: "No fields to update" });
-    }
-
     const user = await User.findById(userId);
     const article = await Article.findById(id);
 
@@ -120,7 +116,11 @@ class ArticleController {
     }
 
     let categoryObject = article.category;
+<<<<<<< HEAD
 
+=======
+
+>>>>>>> 0315740d2272b089a5ab05d57ede6e7a27fcd390
     if (category) {
       let newCategoryId = article.category;
 
@@ -169,7 +169,7 @@ class ArticleController {
       const responseArticle = {
         ...updatedArticle.toObject(),
         author: userId,
-        category: category ? category.name : null,
+        category: category ? categoryObject.name : article.category,
       };
 
       return res.status(200).json(responseArticle);
