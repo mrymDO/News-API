@@ -4,7 +4,10 @@ import User from '../models/user.js';
 class CategoryController {
     async getAll(req, res) {
         const categories = await Category.find();
-        return res.status(200).json(categories);
+        return res.status(200).json({
+            count: categories.length,
+            categories
+        });
     }
 
     async getById(req, res) {
@@ -40,7 +43,7 @@ class CategoryController {
         const updatedCategory = await Category.findByIdAndUpdate(
             id,
             { name, description },
-            { new: true}
+            { new: true }
         );
         if (!updatedCategory) {
             return res.status(404).json({ message: 'Category not found' });

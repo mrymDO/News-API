@@ -22,11 +22,11 @@ const router = express.Router();
  *     summary: Get all articles
  *     description: Retrieve a list of all articles.
  *     parameters:
- *       - name: userID
+ *       - name: user
  *         in: query
  *         type: string
  *         description: Filter articles by user.
- *       - name: categoryID
+ *       - name: category
  *         in: query
  *         type: string
  *         description: Filter articles by category.

@@ -25,7 +25,7 @@ class ArticleController {
   }
 
   async getAll(req, res) {
-    const { user, category, title, content, page = 1, limit = 10 } = req.query;
+    const { user, category, title, content, page = 1, limit = 100 } = req.query;
     const searchQuery = {};
 
     if (user) searchQuery.author = user;
@@ -34,18 +34,23 @@ class ArticleController {
     if (content) searchQuery.content = { $regex: content, $options: 'i' };
 
     const skip = (page - 1) * limit;
-    
+
     const articles = await Article.find(searchQuery)
-         .skip(skip)
-         .limit(limit);
+      .skip(skip)
+      .limit(limit)
+      .populate('category', 'name')
+      .populate('author', 'username');
     const articlesWithReviewsAndLikes = [];
 
     for (const article of articles) {
       const { reviews, likes } = await fetchReviewsAndLikes(article._id);
       articlesWithReviewsAndLikes.push({ ...article.toObject(), reviews, likes });
-  }
+    }
 
-    return res.status(200).json(articlesWithReviewsAndLikes);
+    return res.status(200).json({
+      count: articles.length,
+      result: articlesWithReviewsAndLikes
+    });
   }
 
   async add(req, res) {
@@ -74,7 +79,7 @@ class ArticleController {
     }
     const file = req.files ? req.files[0] : null;
     //if (!file) {
-      //return res.status(400).json({ message: "Image not found" })
+    //return res.status(400).json({ message: "Image not found" })
     //}
     const imagePath = file ? file.path : "";
     const newArticle = await Article.create({
@@ -93,7 +98,7 @@ class ArticleController {
     const { id } = req.params;
     const { title, content, category } = req.body;
 
-    if (!title && !content && !category && !req.file) {
+    if (!title && !content && !category && !req.files) {
       return res.status(400).json({ message: "No fields to update" });
     }
 
@@ -114,8 +119,8 @@ class ArticleController {
       updateFields.content = content;
     }
 
-    let categoryObject = null;
-    
+    let categoryObject = article.category;
+
     if (category) {
       let newCategoryId = article.category;
 

@@ -142,6 +142,8 @@ const router = express.Router();
  *       404:
  *         description: User not found
  */
+
+router.get('/all', UserController.getAllUsers);
 router.get('/profile/:userId', UserController.getUserProfile);
 
 router.use(authenticateToken);
@@ -149,12 +151,7 @@ router.use(authenticateToken);
 router.put('/update/:id', upload.single('profilePicture'), UserController.updateUser);
 router.delete('/delete/:id', UserController.deleteUser)
 
-router.get('/all', (req, res) => {
-  if (req.userRole !== 'admin') {
-    return res.status(403).json({ message: 'Forbidden - Admin access required' });
-  }
-  UserController.getAllUsers(req, res);
-});
+
 
 router.get('/:userId', (req, res) => {
   if (req.userRole !== 'admin') {
